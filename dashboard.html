@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bank Marketing — Term Deposit Prediction Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0F1B2D;
+    --navy-light: #16263D;
+    --paper: #F6F4EE;
+    --card: #FFFFFF;
+    --ink: #14181F;
+    --ink-soft: #5B6270;
+    --ink-faint: #8B9099;
+    --teal: #0F6E56;
+    --teal-fill: #1D9E75;
+    --teal-bg: #E1F5EE;
+    --coral: #993C1D;
+    --coral-fill: #D85A30;
+    --coral-bg: #FAECE7;
+    --line: rgba(15,27,45,0.10);
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: var(--navy);
+    color: #F1EFE8;
+    padding: 56px 24px 44px;
+    margin-bottom: 40px;
+  }
+  header.hero .wrap { padding: 0 24px; }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #7F8CA3;
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 34px;
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
+  }
+  header.hero p.sub {
+    max-width: 640px;
+    color: #C7CCD6;
+    font-size: 15.5px;
+    margin: 0 0 32px;
+  }
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .kpi {
+    background: var(--navy-light);
+    padding: 18px 20px;
+  }
+  .kpi .label { font-size: 12px; color: #8D96A8; margin-bottom: 6px; }
+  .kpi .value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: #F1EFE8;
+  }
+  .kpi .value span.unit { font-size: 14px; color: #8D96A8; font-weight: 500; margin-left: 2px; }
+
+  section { margin-bottom: 48px; }
+  .section-head { margin-bottom: 18px; }
+  .section-head .eyebrow { color: var(--ink-faint); margin-bottom: 6px; }
+  .section-head h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 21px;
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+  .section-head p { color: var(--ink-soft); font-size: 14.5px; margin: 0; max-width: 680px; }
+
+  .callout {
+    background: var(--coral-bg);
+    border: 1px solid rgba(153,60,29,0.18);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 40px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .callout .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--coral);
+    background: #F5D8C9;
+    padding: 4px 9px;
+    border-radius: 5px;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+  .callout p { margin: 0; font-size: 14.5px; color: #5C2A14; }
+  .callout strong { color: var(--coral); }
+
+  .grid-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 22px;
+  }
+  .card h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .card .card-sub { font-size: 12.5px; color: var(--ink-faint); margin: 0 0 16px; }
+
+  .controls { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  select {
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    padding: 8px 12px;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+  }
+
+  .model-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
+  .model-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+  .model-card .mname { font-family:'Space Grotesk', sans-serif; font-weight: 600; font-size: 15px; margin-bottom: 12px; display:flex; align-items:center; gap:8px;}
+  .dot { width: 10px; height: 10px; border-radius: 50%; display:inline-block; }
+  .stat-line { display: flex; justify-content: space-between; font-size: 13.5px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .stat-line:first-of-type { border-top: none; }
+  .stat-line .k { color: var(--ink-soft); }
+  .stat-line .v { font-family: 'IBM Plex Mono', monospace; font-weight: 500; }
+
+  .legend { display:flex; gap:16px; font-size:12.5px; color: var(--ink-soft); margin-bottom: 10px; }
+  .legend span { display:flex; align-items:center; gap:6px; }
+
+  footer {
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 12.5px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+  footer a { color: var(--teal); text-decoration: none; }
+
+  @media (max-width: 720px) {
+    .kpi-row, .grid-2, .grid-3, .model-cards { grid-template-columns: 1fr; }
+    h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Data mining case study</p>
+    <h1>Who actually subscribes to a term deposit?</h1>
+    <p class="sub">An analysis of 4,119 clients from a bank's phone marketing campaign — built to catch a data leakage bug, fix it, and find the honest signal underneath.</p>
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">Clients analyzed</div><div class="value">4,119</div></div>
+      <div class="kpi"><div class="label">Baseline subscription rate</div><div class="value">10.9<span class="unit">%</span></div></div>
+      <div class="kpi"><div class="label">Best model AUC</div><div class="value">0.78</div></div>
+      <div class="kpi"><div class="label">Top predictor</div><div class="value" style="font-size:19px;">euribor3m</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="callout">
+    <span class="tag">Data leakage</span>
+    <p>An earlier version of this model reported <strong>100% accuracy</strong> — a red flag, not a win. It leaked the outcome through <strong>call duration</strong>, which isn't known until after a call happens. Removing it and evaluating on a proper held-out split drops accuracy to an honest <strong>~83&ndash;90%</strong>, with an AUC of <strong>0.76&ndash;0.78</strong> — lower, but real, and actually usable for deciding who to call.</p>
+  </div>
+
+  <section id="explore">
+    <div class="section-head">
+      <p class="eyebrow">01 — Client segments</p>
+      <h2>Where the subscribers actually are</h2>
+      <p>Subscription rate varies far more by life stage and job status than by anything the bank directly controls. Use the filter to isolate a segment.</p>
+    </div>
+
+    <div class="controls">
+      <select id="segmentSelect">
+        <option value="job">By job</option>
+        <option value="age">By age group</option>
+        <option value="education">By education</option>
+        <option value="marital">By marital status</option>
+        <option value="month">By contact month</option>
+      </select>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 id="segTitle">Subscription rate by job</h3>
+        <p class="card-sub" id="segSub">Percent of clients in each group who subscribed</p>
+        <div style="position:relative; height:340px;">
+          <canvas id="segChart" role="img" aria-label="Bar chart of subscription rate by client segment"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Age distribution</h3>
+        <p class="card-sub">Client count by age — most clients are 30&ndash;50, but the 66+ group converts at nearly 5x the base rate</p>
+        <div style="position:relative; height:340px;">
+          <canvas id="ageChart" role="img" aria-label="Histogram of client ages"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="models">
+    <div class="section-head">
+      <p class="eyebrow">02 — Model comparison</p>
+      <h2>Accuracy isn't the metric that matters here</h2>
+      <p>Random Forest looks more "accurate" but misses most real subscribers. Logistic regression trades some precision for catching 3x more of them — the better trade for a bank trying to grow deposits.</p>
+    </div>
+
+    <div class="model-cards">
+      <div class="model-card">
+        <div class="mname"><span class="dot" style="background:#378ADD;"></span>Random Forest (balanced)</div>
+        <div class="stat-line"><span class="k">Accuracy</span><span class="v">90.2%</span></div>
+        <div class="stat-line"><span class="k">ROC AUC</span><span class="v">0.763</span></div>
+        <div class="stat-line"><span class="k">Recall — subscribers</span><span class="v">17.8%</span></div>
+        <div class="stat-line"><span class="k">Precision — subscribers</span><span class="v">69.6%</span></div>
+      </div>
+      <div class="model-card">
+        <div class="mname"><span class="dot" style="background:#1D9E75;"></span>Logistic Regression (balanced)</div>
+        <div class="stat-line"><span class="k">Accuracy</span><span class="v">82.5%</span></div>
+        <div class="stat-line"><span class="k">ROC AUC</span><span class="v">0.782</span></div>
+        <div class="stat-line"><span class="k">Recall — subscribers</span><span class="v">58.9%</span></div>
+        <div class="stat-line"><span class="k">Precision — subscribers</span><span class="v">33.1%</span></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>ROC curve comparison</h3>
+        <p class="card-sub">Both models beat random chance (diagonal) — logistic regression edges out on AUC</p>
+        <div class="legend">
+          <span><span class="dot" style="background:#378ADD;"></span>Random Forest (AUC 0.76)</span>
+          <span><span class="dot" style="background:#1D9E75;"></span>Logistic Regression (AUC 0.78)</span>
+        </div>
+        <div style="position:relative; height:300px;">
+          <canvas id="rocChart" role="img" aria-label="ROC curve comparing Random Forest and Logistic Regression"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Top predictors</h3>
+        <p class="card-sub">Feature importance, Random Forest, duration excluded</p>
+        <div style="position:relative; height:300px;">
+          <canvas id="featChart" role="img" aria-label="Bar chart of top 10 feature importances"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Bank Marketing dataset (UCI Machine Learning Repository) &middot; Full analysis in the <a href="bank_marketing_analysis.ipynb">notebook</a>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const DATA = {"target": {"no": 3668, "yes": 451}, "age_hist": {"counts": [15, 83, 314, 507, 732, 455, 495, 309, 377, 239, 309, 174, 47, 14, 12, 10, 11, 7, 5, 4], "edges": [18.0, 21.5, 25.0, 28.5, 32.0, 35.5, 39.0, 42.5, 46.0, 49.5, 53.0, 56.5, 60.0, 63.5, 67.0, 70.5, 74.0, 77.5, 81.0, 84.5, 88.0]}, "job_rate": [{"job": "student", "rate": 23.17, "count": 82}, {"job": "retired", "rate": 22.89, "count": 166}, {"job": "unemployed", "rate": 17.12, "count": 111}, {"job": "admin.", "rate": 13.14, "count": 1012}, {"job": "technician", "rate": 11.58, "count": 691}, {"job": "unknown", "rate": 10.26, "count": 39}, {"job": "housemaid", "rate": 10.0, "count": 110}, {"job": "management", "rate": 9.26, "count": 324}, {"job": "services", "rate": 8.91, "count": 393}, {"job": "self-employed", "rate": 8.18, "count": 159}, {"job": "blue-collar", "rate": 6.9, "count": 884}, {"job": "entrepreneur", "rate": 5.41, "count": 148}], "month_rate": [{"month": "mar", "rate": 58.33}, {"month": "apr", "rate": 16.74}, {"month": "may", "rate": 6.53}, {"month": "jun", "rate": 12.83}, {"month": "jul", "rate": 8.3}, {"month": "aug", "rate": 10.06}, {"month": "sep", "rate": 40.62}, {"month": "oct", "rate": 36.23}, {"month": "nov", "rate": 9.64}, {"month": "dec", "rate": 54.55}], "edu_rate": [{"education": "unknown", "rate": 15.57}, {"education": "university.degree", "rate": 13.05}, {"education": "professional.course", "rate": 12.15}, {"education": "high.school", "rate": 10.53}, {"education": "basic.4y", "rate": 8.86}, {"education": "basic.9y", "rate": 7.49}, {"education": "basic.6y", "rate": 7.46}, {"education": "illiterate", "rate": 0.0}], "marital_rate": [{"marital": "single", "rate": 13.44}, {"marital": "married", "rate": 10.04}, {"marital": "divorced", "rate": 9.64}, {"marital": "unknown", "rate": 9.09}], "age_bucket_rate": [{"bucket": "18-25", "rate": 12.26}, {"bucket": "26-35", "rate": 10.83}, {"bucket": "36-45", "rate": 8.98}, {"bucket": "46-55", "rate": 10.24}, {"bucket": "56-65", "rate": 14.47}, {"bucket": "66+", "rate": 47.27}], "roc": {"rf": {"fpr": [0.0, 0.004087193460490463, 0.006811989100817439, 0.014986376021798364, 0.025885558583106268, 0.0340599455040872, 0.04087193460490463, 0.047683923705722074, 0.05722070844686648, 0.0653950953678474, 0.07901907356948229, 0.09809264305177112, 0.11716621253405994, 0.13487738419618528, 0.16076294277929154, 0.18256130790190736, 0.2220708446866485, 0.2615803814713896, 0.30926430517711173, 0.3896457765667575, 0.5190735694822888, 0.6893732970027248, 0.8923705722070845, 1.0], "tpr": [0.0, 0.1, 0.15555555555555556, 0.2, 0.2777777777777778, 0.3111111111111111, 0.34444444444444444, 0.37777777777777777, 0.4111111111111111, 0.43333333333333335, 0.45555555555555555, 0.4777777777777778, 0.5, 0.5444444444444444, 0.5888888888888889, 0.6111111111111112, 0.6444444444444445, 0.7111111111111111, 0.7333333333333333, 0.7444444444444445, 0.8111111111111111, 0.8666666666666667, 0.9444444444444444, 1.0], "auc": 0.763}, "lr": {"fpr": [0.0, 0.0013623978201634877, 0.0027247956403269754, 0.005449591280653951, 0.009536784741144414, 0.01907356948228883, 0.020435967302452316, 0.021798365122615803, 0.02316076294277929, 0.02452316076294278, 0.027247956403269755, 0.031335149863760216, 0.0340599455040872, 0.03814713896457766, 0.039509536784741145, 0.04223433242506812, 0.047683923705722074, 0.04904632152588556, 0.05040871934604905, 0.05313351498637602, 0.055858310626702996, 0.06403269754768393, 0.0653950953678474, 0.0667574931880109, 0.08310626702997276, 0.08583106267029973, 0.08719346049046321, 0.09400544959128065, 0.10762942779291552, 0.11444141689373297, 0.1226158038147139, 0.12670299727520437, 0.164850136239782, 0.16621253405994552, 0.18392370572207084, 0.19209809264305178, 0.22343324250681199, 0.2438692098092643, 0.2847411444141689, 0.2901907356948229, 0.2970027247956403, 0.30517711171662126, 0.32697547683923706, 0.37057220708446864, 0.38419618528610355, 0.3869209809264305, 0.39645776566757496, 0.3991825613079019, 0.41825613079019075, 0.4427792915531335, 0.45095367847411444, 0.47547683923705725, 0.4782016348773842, 0.5013623978201635, 0.5081743869209809, 0.5095367847411444, 0.5313351498637602, 0.6825613079019074, 0.6948228882833788, 0.7220708446866485, 0.8051771117166212, 0.8596730245231607, 0.8937329700272479, 0.9128065395095368, 0.9305177111716622, 0.9659400544959128, 0.9727520435967303, 1.0, 1.0], "tpr": [0.0, 0.1, 0.12222222222222222, 0.14444444444444443, 0.16666666666666666, 0.18888888888888888, 0.2111111111111111, 0.2222222222222222, 0.23333333333333334, 0.25555555555555554, 0.26666666666666666, 0.3111111111111111, 0.32222222222222224, 0.34444444444444444, 0.36666666666666664, 0.37777777777777777, 0.3888888888888889, 0.4, 0.4222222222222222, 0.43333333333333335, 0.4444444444444444, 0.4666666666666667, 0.4777777777777778, 0.4888888888888889, 0.5, 0.5111111111111111, 0.5222222222222223, 0.5444444444444444, 0.5555555555555556, 0.5555555555555556, 0.5666666666666667, 0.5777777777777777, 0.5888888888888889, 0.6, 0.6111111111111112, 0.6333333333333333, 0.6444444444444445, 0.6555555555555556, 0.6666666666666666, 0.6777777777777778, 0.6888888888888889, 0.7, 0.7111111111111111, 0.7222222222222222, 0.7333333333333333, 0.7555555555555555, 0.7666666666666667, 0.7777777777777778, 0.7888888888888889, 0.8, 0.8111111111111111, 0.8333333333333334, 0.8444444444444444, 0.8555555555555555, 0.8666666666666667, 0.8777777777777778, 0.8888888888888888, 0.9, 0.9111111111111111, 0.9222222222222223, 0.9333333333333333, 0.9444444444444444, 0.9555555555555556, 0.9555555555555556, 0.9666666666666667, 0.9777777777777777, 0.9888888888888889, 1.0, 1.0], "auc": 0.782}}, "confusion": {"rf": [[727, 7], [74, 16]], "lr": [[627, 107], [37, 53]]}, "feature_importance": [{"feature": "euribor3m", "importance": 0.1666}, {"feature": "age", "importance": 0.1387}, {"feature": "nr_employed", "importance": 0.0796}, {"feature": "job", "importance": 0.0746}, {"feature": "campaign", "importance": 0.0727}, {"feature": "education", "importance": 0.0686}, {"feature": "day_of_week", "importance": 0.0607}, {"feature": "emp_var_rate", "importance": 0.0523}, {"feature": "marital", "importance": 0.0391}, {"feature": "cons_conf_idx", "importance": 0.0385}]};
+
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.color = '#5B6270';
+
+const gridColor = 'rgba(15,27,45,0.06)';
+
+// --- Segment chart ---
+const segChart = new Chart(document.getElementById('segChart'), {
+  type: 'bar',
+  data: { labels: [], datasets: [{ data: [], backgroundColor: '#1D9E75', borderRadius: 4, maxBarThickness: 22 }] },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ctx.parsed.x + '% subscribed' } } },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { callback: (v) => v + '%' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+function fmtLabel(seg) {
+  if (seg === 'job') return { data: DATA.job_rate, key: 'job', title: 'Subscription rate by job', sub: 'Percent of clients in each job category who subscribed' };
+  if (seg === 'age') return { data: DATA.age_bucket_rate, key: 'bucket', title: 'Subscription rate by age group', sub: 'Older clients (66+) convert at nearly 5x the overall rate' };
+  if (seg === 'education') return { data: DATA.edu_rate, key: 'education', title: 'Subscription rate by education', sub: 'Percent of clients in each education level who subscribed' };
+  if (seg === 'marital') return { data: DATA.marital_rate, key: 'marital', title: 'Subscription rate by marital status', sub: 'Percent of clients in each marital status who subscribed' };
+  if (seg === 'month') return { data: DATA.month_rate, key: 'month', title: 'Subscription rate by contact month', sub: 'Rates swing heavily by month — often reflecting economic timing, not campaign effort' };
+}
+
+function updateSegChart(seg) {
+  const { data, key, title, sub } = fmtLabel(seg);
+  document.getElementById('segTitle').textContent = title;
+  document.getElementById('segSub').textContent = sub;
+  segChart.data.labels = data.map(d => d[key]);
+  segChart.data.datasets[0].data = data.map(d => d.rate);
+  segChart.update();
+}
+updateSegChart('job');
+document.getElementById('segmentSelect').addEventListener('change', (e) => updateSegChart(e.target.value));
+
+// --- Age histogram ---
+new Chart(document.getElementById('ageChart'), {
+  type: 'bar',
+  data: {
+    labels: DATA.age_hist.edges.slice(0, -1).map((e, i) => Math.round(e) + '-' + Math.round(DATA.age_hist.edges[i+1])),
+    datasets: [{ data: DATA.age_hist.counts, backgroundColor: '#378ADD', borderRadius: 3, maxBarThickness: 20 }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { maxRotation: 90, minRotation: 90, autoSkip: true, maxTicksLimit: 12 } },
+      y: { grid: { color: gridColor } }
+    }
+  }
+});
+
+// --- ROC chart ---
+new Chart(document.getElementById('rocChart'), {
+  type: 'line',
+  data: {
+    labels: DATA.roc.rf.fpr.map(v => v.toFixed(2)),
+    datasets: [
+      { label: 'Random Forest', data: DATA.roc.rf.fpr.map((x,i)=>({x, y: DATA.roc.rf.tpr[i]})), borderColor: '#378ADD', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, tension: 0.15 },
+      { label: 'Logistic Regression', data: DATA.roc.lr.fpr.map((x,i)=>({x, y: DATA.roc.lr.tpr[i]})), borderColor: '#1D9E75', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, tension: 0.15 },
+      { label: 'Random chance', data: [{x:0,y:0},{x:1,y:1}], borderColor: '#C3C2B7', borderDash: [4,4], borderWidth: 1.5, pointRadius: 0 }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    parsing: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { type: 'linear', min: 0, max: 1, title: { display: true, text: 'False positive rate', font: {size: 12} }, grid: { color: gridColor } },
+      y: { type: 'linear', min: 0, max: 1, title: { display: true, text: 'True positive rate', font: {size: 12} }, grid: { color: gridColor } }
+    }
+  }
+});
+
+// --- Feature importance ---
+new Chart(document.getElementById('featChart'), {
+  type: 'bar',
+  data: {
+    labels: DATA.feature_importance.map(d => d.feature).reverse(),
+    datasets: [{ data: DATA.feature_importance.map(d => d.importance).reverse(), backgroundColor: '#D85A30', borderRadius: 4, maxBarThickness: 18 }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: gridColor } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
