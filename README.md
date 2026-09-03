@@ -15,7 +15,7 @@ An early pass at this model reported **100% accuracy**. That's not a win — it'
 
 The strongest real predictor of subscription is `euribor3m` (the prevailing interest rate environment) — timing the campaign matters more than who specifically gets called.
 
-**[→ View the interactive dashboard](https://YOUR-GITHUB-USERNAME.github.io/bank-marketing-prediction/dashboard.html)** *(update this link once GitHub Pages is enabled — see below)*
+**[→ View the interactive dashboard](https://edward-henderson.github.io/bank-marketing-prediction/dashboard.html)** *(update this link once GitHub Pages is enabled — see below)*
 
 ## Repo contents
 
